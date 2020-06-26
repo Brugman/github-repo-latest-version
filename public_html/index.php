@@ -7,16 +7,17 @@
 $username = 'Brugman';
 
 $repos_enabled = [
-    // tags
     'acf-agency-workflow',
     // no tags yet
-    'localhost-index',
-    'domain-tool',
-    'find-junk-html',
-    'reset-post-permalink',
-    'gist-list',
-    'acf-copy-field-names',
+    // 'localhost-index',
+    // 'domain-tool',
+    // 'find-junk-html',
+    // 'reset-post-permalink',
+    // 'gist-list',
+    // 'acf-copy-field-names',
 ];
+
+$cache_duration = 60 * 60; // 1 hour
 
 /**
  * Functions.
@@ -74,11 +75,70 @@ function get_latest_version_details( $api_data )
         bail('version data in unknown format');
 
     return [
-        'version' => str_replace( 'v', '', $api_data[0]['name'] ),
-        'zip' => $api_data[0]['zipball_url'],
-        'tar' => $api_data[0]['tarball_url'],
+        'version'   => str_replace( 'v', '', $api_data[0]['name'] ),
+        'zip'       => $api_data[0]['zipball_url'],
+        'tar'       => $api_data[0]['tarball_url'],
+        'timestamp' => time(),
     ];
 }
+
+function cache_dir()
+{
+    return dirname( __DIR__ ).'/cache/';
+}
+
+function get_cached_data( $repo )
+{
+    $cache_file = cache_dir().$repo.'.json';
+
+    if ( file_exists( $cache_file ) )
+        return json_decode( file_get_contents( $cache_file ), true );
+
+    return false;
+}
+
+function update_cache_data( $repo, $data )
+{
+    $cache_file = cache_dir().$repo.'.json';
+
+    $fh = fopen( $cache_file, 'w' );
+    fwrite( $fh, json_encode( $data ) );
+    fclose( $fh );
+}
+
+function is_cache_fresh( $cache )
+{
+    if ( !$cache )
+        return false;
+
+    global $cache_duration;
+
+    $age_seconds = time() - $cache['timestamp'];
+
+    if ( $age_seconds < $cache_duration )
+        return true;
+
+    return false;
+}
+
+function output_json_exit( $data )
+{
+    header( 'Content-Type: application/json' );
+    echo json_encode( $data );
+    exit;
+}
+
+/**
+ * Prep.
+ */
+
+$composer_autoloader = dirname( __DIR__ ).'/vendor/autoload.php';
+if ( !file_exists( $composer_autoloader ) )
+    bail('composer autoloader not available');
+
+require_once $composer_autoloader;
+
+date_default_timezone_set( 'Europe/Amsterdam' );
 
 /**
  * Runtime.
@@ -86,21 +146,29 @@ function get_latest_version_details( $api_data )
 
 $repo = get_valid_repo();
 
-require_once dirname( __DIR__ ).'/vendor/autoload.php';
+$cache = get_cached_data( $repo );
 
+$is_cache_fresh = is_cache_fresh( $cache );
+
+if ( $is_cache_fresh )
+    output_json_exit( $cache );
+
+// prep api
+// https://github.com/KnpLabs/php-github-api
 $client = new \Github\Client();
 
+// check rate limit is good
 $api_calls_remaining = $client->api('rate_limit')->getResource('core')->getRemaining();
 
 if ( $api_calls_remaining == 0 )
     bail('external api rate limit reached');
 
+// get data
 $api_data = $client->api('repo')->tags( $username, $repo );
 
 $details = get_latest_version_details( $api_data );
 
-header( 'Content-Type: application/json' );
-echo json_encode( $details );
-exit;
+update_cache_data( $repo, $details );
 
-// https://github.com/KnpLabs/php-github-api/blob/master/doc/
+output_json_exit( $details );
+
