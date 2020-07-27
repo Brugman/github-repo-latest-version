@@ -1,0 +1,21 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #202020;
+    color: #FFF;
+    padding: 50px;
+}
+ul {
+    margin-top: 50px;
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+}
+li {
+    margin-right: 50px;
+    margin-bottom: 50px;
+    border: 1px solid #444;
+    padding: 20px 30px;
+}

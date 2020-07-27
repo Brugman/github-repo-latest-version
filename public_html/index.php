@@ -1,148 +1,17 @@
 <?php
 
-/**
- * Settings.
- */
+if ( !file_exists('config.php') )
+    exit( 'config.php not found' );
 
-$username = 'Brugman';
+include 'config.php';
+include 'functions.php';
 
-$repos_enabled = [
-    'acf-agency-workflow',
-    // no tags yet
-    // 'localhost-index',
-    // 'domain-tool',
-    // 'find-junk-html',
-    // 'reset-post-permalink',
-    // 'gist-list',
-    // 'acf-copy-field-names',
-];
-
-$cache_duration = 60 * 60; // 1 hour
-
-/**
- * Functions.
- */
-
-function d( $var = false )
-{
-    echo "<pre style=\"max-height:35vh;z-index:9999;position:relative;overflow-y:scroll;white-space:pre-wrap;word-wrap:break-word;padding:10px 15px;border:1px solid #fff;background-color:#161616;text-align:left;line-height:1.5;font-family:Courier;font-size:16px;color:#fff;\">";
-    print_r( $var );
-    echo "</pre>";
-}
-
-function dd( $var = false )
-{
-    d( $var );
-    exit;
-}
-
-function bail( $msg = false )
-{
-    $data = [];
-
-    if ( $msg )
-        $data['error'] = $msg;
-
-    header( 'Content-Type: application/json' );
-    echo json_encode( $data );
-    exit;
-}
-
-function get_valid_repo()
-{
-    if ( !isset( $_GET['repo'] ) )
-        bail('no repo requested');
-
-    $repo = trim( $_GET['repo'] );
-
-    if ( !$repo )
-        bail('no repo requested');
-
-    global $repos_enabled;
-
-    if ( !in_array( $repo, $repos_enabled ) )
-        bail('requested repo is not whitelisted');
-
-    return $repo;
-}
-
-function get_latest_version_details( $api_data )
-{
-    if ( !$api_data )
-        bail('no version data available');
-
-    if ( !isset( $api_data[0]['name'], $api_data[0]['zipball_url'], $api_data[0]['tarball_url'] ) )
-        bail('version data in unknown format');
-
-    return [
-        'version'   => str_replace( 'v', '', $api_data[0]['name'] ),
-        'zip'       => $api_data[0]['zipball_url'],
-        'tar'       => $api_data[0]['tarball_url'],
-        'timestamp' => time(),
-    ];
-}
-
-function cache_dir()
-{
-    return dirname( __DIR__ ).'/cache/';
-}
-
-function get_cached_data( $repo )
-{
-    $cache_file = cache_dir().$repo.'.json';
-
-    if ( file_exists( $cache_file ) )
-        return json_decode( file_get_contents( $cache_file ), true );
-
-    return false;
-}
-
-function update_cache_data( $repo, $data )
-{
-    $cache_file = cache_dir().$repo.'.json';
-
-    $fh = fopen( $cache_file, 'w' );
-    fwrite( $fh, json_encode( $data ) );
-    fclose( $fh );
-}
-
-function is_cache_fresh( $cache )
-{
-    if ( !$cache )
-        return false;
-
-    global $cache_duration;
-
-    $age_seconds = time() - $cache['timestamp'];
-
-    if ( $age_seconds < $cache_duration )
-        return true;
-
-    return false;
-}
-
-function output_json_exit( $data )
-{
-    header( 'Content-Type: application/json' );
-    echo json_encode( $data );
-    exit;
-}
-
-/**
- * Prep.
- */
-
+// autoloader
 $composer_autoloader = dirname( __DIR__ ).'/vendor/autoload.php';
 if ( !file_exists( $composer_autoloader ) )
     bail('composer autoloader not available');
 
 require_once $composer_autoloader;
-
-date_default_timezone_set( 'Europe/Amsterdam' );
-
-/**
- * Runtime.
- */
 
 $repo = get_valid_repo();
 
@@ -153,8 +22,7 @@ $is_cache_fresh = is_cache_fresh( $cache );
 if ( $is_cache_fresh )
     output_json_exit( $cache );
 
-// prep api
-// https://github.com/KnpLabs/php-github-api
+// prep api (https://github.com/KnpLabs/php-github-api)
 $client = new \Github\Client();
 
 // check rate limit is good
