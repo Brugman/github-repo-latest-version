@@ -37,9 +37,20 @@ $cached_repos = get_repo_details( $cached_repos );
 <?php foreach ( $cached_repos as $repo ): ?>
         <li>
             <p><strong><?=$repo['repo'];?></strong></p>
-            <p>Version: <?=$repo['version'];?></p>
-            <p>Timestamp: <?=date( 'Y-m-d H:i', $repo['timestamp'] );?></p>
-            <p>Fresh: <?=( $repo['fresh'] ? 'Yes' : 'No' );?></p>
+            <table>
+                <tr>
+                    <td>Version:</td>
+                    <td><?=$repo['version'];?></td>
+                </tr>
+                <tr>
+                    <td>Timestamp:</td>
+                    <td><?=date( 'Y-m-d H:i', $repo['timestamp'] );?></td>
+                </tr>
+                <tr>
+                    <td>Fresh:</td>
+                    <td><?=( $repo['fresh'] ? 'Yes' : 'No' );?></td>
+                </tr>
+            </table>
         </li>
 <?php endforeach; // $cached_repos ?>
     </ul>
