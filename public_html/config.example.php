@@ -1,11 +1,11 @@
 <?php
 
-$username = 'laravel';
-
 $repos_enabled = [
-    'laravel',
-    'envoy',
-    'lumen-framework'
+    'laravel/envoy',
+    'laravel/laravel',
+    'vuejs/vue',
+    'vuejs/vuex',
+    'WordPress/WordPress',
 ];
 
 $cache_duration = 60 * 60; // 1 hour

@@ -43,6 +43,11 @@ function get_valid_repo()
     return $repo;
 }
 
+function split_user_project( $repo )
+{
+    return explode( '/', $repo );
+}
+
 function get_latest_version_details( $api_data )
 {
     if ( !$api_data )
@@ -64,9 +69,24 @@ function cache_dir()
     return dirname( __DIR__ ).'/cache/';
 }
 
+function remove_slash( $string )
+{
+    return str_replace( '/', '---', $string );
+}
+
+function add_slash( $string )
+{
+    return str_replace( '---', '/', $string );
+}
+
+function cache_file_path( $repo )
+{
+    return cache_dir().remove_slash( $repo ).'.json';
+}
+
 function get_cached_data( $repo )
 {
-    $cache_file = cache_dir().$repo.'.json';
+    $cache_file = cache_file_path( $repo );
 
     if ( file_exists( $cache_file ) )
         return json_decode( file_get_contents( $cache_file ), true );
@@ -76,7 +96,7 @@ function get_cached_data( $repo )
 
 function update_cache_data( $repo, $data )
 {
-    $cache_file = cache_dir().$repo.'.json';
+    $cache_file = cache_file_path( $repo );
 
     $fh = fopen( $cache_file, 'w' );
     fwrite( $fh, json_encode( $data ) );

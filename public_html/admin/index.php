@@ -36,7 +36,8 @@ $cached_repos = get_repo_details( $cached_repos );
     <ul>
 <?php foreach ( $cached_repos as $repo ): ?>
         <li>
-            <p><strong><?=$repo['repo'];?></strong></p>
+            <p><strong><?=explode( '---', $repo['repo'] )[0];?></strong></p>
+            <p><strong><?=explode( '---', $repo['repo'] )[1];?></strong></p>
             <table>
                 <tr>
                     <td>Version:</td>

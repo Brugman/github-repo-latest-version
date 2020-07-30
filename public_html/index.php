@@ -29,10 +29,12 @@ $client = new \Github\Client();
 $api_calls_remaining = $client->api('rate_limit')->getResource('core')->getRemaining();
 
 if ( $api_calls_remaining == 0 )
-    bail('external api rate limit reached');
+    bail('GitHub rate limit reached');
+
+[ $username, $project ] = split_user_project( $repo );
 
 // get data
-$api_data = $client->api('repo')->tags( $username, $repo );
+$api_data = $client->api('repo')->tags( $username, $project );
 
 $details = get_latest_version_details( $api_data );
 
