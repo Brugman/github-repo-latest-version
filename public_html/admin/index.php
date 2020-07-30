@@ -1,10 +1,10 @@
 <?php
 
-if ( !file_exists('config.php') )
+if ( !file_exists('../config.php') )
     exit( 'config.php not found' );
 
-include 'config.php';
-include 'functions.php';
+include '../config.php';
+include '../functions.php';
 
 $cached_repos = list_cached_repos();
 

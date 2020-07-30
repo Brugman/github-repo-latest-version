@@ -3,31 +3,27 @@
 }
 body {
     margin: 0;
-    font-family: Arial, sans-serif;
     background-color: #202020;
-    color: #FFF;
     padding: 50px;
+    font-family: sans-serif;
+    color: #FFF;
 }
 ul {
     margin-top: 50px;
-    list-style-type: none;
     padding: 0;
+    list-style-type: none;
 }
 li {
     display: inline-block;
     width: 320px;
     margin-right: 50px;
     margin-bottom: 50px;
-    border: 1px solid #444;
     padding: 20px 30px;
+    border: 1px solid #444;
 }
-table {}
-table tr {}
 table tr td {
     line-height: 2;
 }
 table tr td:nth-child(1) {
      padding-right: 15px;
-}
-table tr td:nth-child(2) {
 }
