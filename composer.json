@@ -1,7 +1,7 @@
 {
     "require": {
         "knplabs/github-api": "3.0",
-        "guzzlehttp/guzzle": "7.0.1",
+        "guzzlehttp/guzzle": "7.4.5",
         "http-interop/http-factory-guzzle": "1.0"
     }
 }
