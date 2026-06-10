@@ -1,3 +1,6 @@
+> [!WARNING]
+> This project is archived and no longer maintained. It will not receive further development or updates.
+
 # GitHub repo latest version
 
 > Add the ability to show an update notice in your apps with minimal code.
